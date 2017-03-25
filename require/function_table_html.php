@@ -140,6 +140,7 @@ function xml_decode($txt) {
  */
 function ajaxtab_entete_fixe($columns, $default_fields, $option = array(), $list_col_cant_del) {
     global $protectedPost, $l, $pages_refs;
+    
     //Translated name of the column
     $lbl_column = array("ACTIONS" => $l->g(1381),
         "CHECK" => "<input type='checkbox' name='ALL' id='checkboxALL' Onclick='checkall();'>");
@@ -219,6 +220,9 @@ function ajaxtab_entete_fixe($columns, $default_fields, $option = array(), $list
         <?php
         //Display the Column selector
         if (!empty($list_col_can_del)) {
+            // Sort columns show / hide select by default
+            ksort($list_col_can_del);
+            
             $opt = true;
             ?>
 
@@ -378,10 +382,16 @@ function ajaxtab_entete_fixe($columns, $default_fields, $option = array(), $list
                 "columns": [
     <?php
     $index = 0;
+    
+    // Unset visible columns session var
+    unset($_SESSION['OCS']['visible_col'][$option['table_name']]);
+        
 //Visibility handling
     foreach ($columns as $key => $column) {
         if (!empty($visible_col)) {
             if ((in_array($index, $visible_col))) {
+                // add visibles columns
+                $_SESSION['OCS']['visible_col'][$option['table_name']][$key] = $column;
                 $visible = 'true';
             } else {
                 $visible = 'false';
@@ -390,6 +400,8 @@ function ajaxtab_entete_fixe($columns, $default_fields, $option = array(), $list
         } else {
             if (( (in_array($key, $default_fields)) || (in_array($key, $list_col_cant_del)) || array_key_exists($key, $default_fields) || ($key == "ACTIONS" )) && !(in_array($key, $actions))
             ) {
+                // add visibles columns
+                $_SESSION['OCS']['visible_col'][$option['table_name']][$key] = $column;
                 $visible = 'true';
             } else {
                 $visible = 'false';
@@ -460,7 +472,7 @@ function ajaxtab_entete_fixe($columns, $default_fields, $option = array(), $list
                 $("#select_col" + table_name).val('default');
             });
 
-            $("<span id='" + table_name + "_settings_toggle' class='glyphicon glyphicon-chevron-down table_settings_toggle'></span>").hide().appendTo("#" + table_name + "_filter label");
+            //$("<span id='" + table_name + "_settings_toggle' class='glyphicon glyphicon-chevron-down table_settings_toggle'></span>").hide().appendTo("#" + table_name + "_filter label");
             $("#" + table_name + "_settings").hide();
             $("." + table_name + "_top_settings").contents().appendTo("#" + table_name + "_settings");
             $("#" + table_name + "_settings").addClass('table_settings');
@@ -508,7 +520,7 @@ function ajaxtab_entete_fixe($columns, $default_fields, $option = array(), $list
         printEnTete_tab($titre);
     }
     echo "<div class='tableContainer'>";
-    echo "<table id='" . $option['table_name'] . "' class='table table-striped table-bordered table-condensed table-hover'><thead><tr>";
+    echo "<table id='" . $option['table_name'] . "' width='100%' class='table table-striped table-condensed table-hover'><thead><tr>";
     //titre du tableau
     foreach ($columns as $k => $v) {
         if (array_key_exists($k, $lbl_column)) {
@@ -649,6 +661,7 @@ function show_modif($name, $input_name, $input_type, $input_reload = "", $config
 		return "<input type='text' name='" . $input_name . "' id='" . $input_name . "' SIZE='" . $configinput['SIZE'] . "' MAXLENGTH='" . $configinput['MAXLENGTH'] . "' value=\"" . $name . "\" class='form-control'\" " . $configinput['JAVASCRIPT'] . ">";
 	elseif ($input_type == 2) {
 		$champs = "<div class='form-group'>";
+
 
         echo "<div class='col col-sm-10 col-sm-offset-2'>";
 		$champs .= "<select name='" . $input_name . "' id='" . $input_name . "' " . (isset($configinput['JAVASCRIPT']) ? $configinput['JAVASCRIPT'] : '');
@@ -902,6 +915,9 @@ function show_field($name_field,$type_field,$value_field,$config=array()){
 		
 		if (isset($config['SELECT_DEFAULT'][$key]))	{
 			$tab_typ_champ[$key]['CONFIG']['DEFAULT']=$config['SELECT_DEFAULT'][$key];
+                        if($tab_typ_champ[$key]['CONFIG']['DEFAULT'] == 'YES'){
+                            $tab_typ_champ[$key]['CONFIG']['SELECTED_VALUE'] = $config['SELECTED_VALUE'][$key];
+                        }
 		}
 		if (isset($config['JAVASCRIPT'][$key]))	{
 			$tab_typ_champ[$key]['CONFIG']['JAVASCRIPT']=$config['JAVASCRIPT'][$key];
@@ -1655,11 +1671,7 @@ function ajaxgestionresults($resultDetails,$list_fields,$tab_options){
 						$row[$key]="&nbsp";
 						break;
 					case "MODIF":
-						if (!isset($tab_options['MODIF']['IMG']))
-							$image="image/modif_tab.png";
-						else
-							$image=$tab_options['MODIF']['IMG'];
-						$row[$key]="<a href=# OnClick='pag(\"".htmlspecialchars($value_of_field, ENT_QUOTES)."\",\"MODIF\",\"".$form_name."\");'><img src=".$image."></a>";
+						$row[$key]="<a href=# OnClick='pag(\"".htmlspecialchars($value_of_field, ENT_QUOTES)."\",\"MODIF\",\"".$form_name."\");'><span class='glyphicon glyphicon-edit'></span></a>";
 						break;
 					case "SELECT":
 						$row[$key]="<a href=# OnClick='confirme(\"\",\"".htmlspecialchars($value_of_field, ENT_QUOTES)."\",\"".$form_name."\",\"SELECT\",\"".htmlspecialchars($tab_options['QUESTION']['SELECT'],ENT_QUOTES)."\");'><img src=image/prec16.png></a>";
@@ -1691,7 +1703,7 @@ function ajaxgestionresults($resultDetails,$list_fields,$tab_options){
 						break;
 					case "MOD_TAGS":
 						if ($value_of_field!= '&nbsp;'){
-							$row[$key]="<center><a href='index.php?".PAG_INDEX."=".$pages_refs['ms_custom_perim']."&head=1&id=".$value_of_field."' ><img src='image/modif_tab.png'></a><center>";
+							$row[$key]="<center><a href='index.php?".PAG_INDEX."=".$pages_refs['ms_custom_perim']."&head=1&id=".$value_of_field."' ><span class='glyphicon glyphicon-edit'></span></a><center>";
 						}
 						break;
 					default :
@@ -2018,7 +2030,7 @@ function gestion_donnees($sql_data,$list_fields,$tab_options,$form_name,$default
 				}
 				
 				//utf8 or not?
-				$value_of_field=data_encode_utf8($value_of_field);
+				//$value_of_field=data_encode_utf8($value_of_field);
 				
 				$col[$i]=$key;
 				if ($protectedPost['sens_'.$table_name] == "ASC")
@@ -2184,11 +2196,7 @@ function gestion_donnees($sql_data,$list_fields,$tab_options,$form_name,$default
 						$data[$i][$num_col]="<a href=# OnClick='confirme(\"\",\"".htmlspecialchars($value_of_field, ENT_QUOTES)."\",\"".$form_name."\",\"SUP_PROF\",\"".htmlspecialchars($lbl_msg, ENT_QUOTES)."\");'><img src=image/delete-small.png></a>";
 						$lien = 'KO';		
 					}elseif ($key == "MODIF"){
-						if (!isset($tab_options['MODIF']['IMG']))
-						$image="image/modif_tab.png";
-						else
-						$image=$tab_options['MODIF']['IMG'];
-						$data[$i][$num_col]="<a href=# OnClick='pag(\"".htmlspecialchars($value_of_field, ENT_QUOTES)."\",\"MODIF\",\"".$form_name."\");'><img src=".$image."></a>";
+						$data[$i][$num_col]="<a href=# OnClick='pag(\"".htmlspecialchars($value_of_field, ENT_QUOTES)."\",\"MODIF\",\"".$form_name."\");'><span class='glyphicon glyphicon-edit'></span></a>";
 						$lien = 'KO';
 					}elseif ($key == "SELECT"){
 						$data[$i][$num_col]="<a href=# OnClick='confirme(\"\",\"".htmlspecialchars($value_of_field, ENT_QUOTES)."\",\"".$form_name."\",\"SELECT\",\"".htmlspecialchars($tab_options['QUESTION']['SELECT'],ENT_QUOTES)."\");'><img src=image/prec16.png></a>";

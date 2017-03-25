@@ -1136,7 +1136,7 @@
 1239 MHz
 1240 MB
 1241 Liczba urządzeń SNMP
-1242 Y-m-d
+1242 d/m/Y
 1243 Wysłać można tylko pliki: ocsagent.exe, OCS-NG-Windows-Agent-Setup.exe i ocspackage.exe
 1244 Ten plik nie może być pusty
 1245 Zarządzaj klientami OCS-NG
@@ -1181,7 +1181,7 @@
 1293 Teledeploy force
 1294 Installation time
 1295 Installation date
-1296 Trade offer
+1296 OCS Professional
 1297 SNMP identyfikacja urządzenia
 1298 QRCode administration
 1299 QRCode

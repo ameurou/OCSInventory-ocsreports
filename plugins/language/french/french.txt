@@ -1123,7 +1123,7 @@
 1237 Version du firmware
 1238 Date d'installation
 1239 MHz
-1240 MB
+1240 Mo
 1241 Nombre de périphériques SNMP remontés
 1242 d/m/y
 1243 Seuls les fichiers ocsagent.exe, OCS-NG-Windows-Agent-Setup.exe et ocspackage.exe peuvent être envoyés
@@ -1171,7 +1171,7 @@
 1293 Forcer le télédéploiement
 1294 Heure d'installation
 1295 Date d'installation
-1296 Offres commerciales
+1296 OCS Professionnel
 1297 Numéro d'identification
 1298 Gestion des QRCode
 1299 QRCode
@@ -1290,6 +1290,10 @@
 1412 Modifier profil
 1413 Nouveau label
 1414 Détails de la machine
+1415 ID de l'operateur
+1416 Nom de l'operateur
+1417 IMEI/DEVICEID
+1418 Pays
 
 2000 * SETUP voices 2000-2200 * (2000-2029 Common voices *** 2030-2200 Setup voices)
 2001 ERREUR:
@@ -1401,7 +1405,7 @@
 2110 Version attendue
 2111 Effectuer la mise à jour
 2112 Le fichier suivant n'est pas présent ou n'est pas accessible en lecture
-2113 La version actuelle de php est inférieure à la version 5.3.7 et ne sera plus compatible dans le futur (version&nbsp;:&nbsp;
+2113 La version actuelle de php est inférieure à la version 5.4 et ne sera plus compatible dans le futur (version&nbsp;:&nbsp;
 2114 Aucun fichier sql pour la version
 2115 L'utilisateur que vous avez tapé ne semble pas être root
 2116 Le répertoire config/profiles n'est pas disponible en écriture
@@ -1413,6 +1417,7 @@
 2122 Modification
 2123 Paquets disponible
 2124 Paquets supprimé
+2125 WARNING: L'extension CURL pour PHP n'est pas installé. Essayez d'installer le paquet php-curl (Linux).
 
 5000 [DEBUG]requête d'insertion de machines =>[DEBUG]
 5001 [DEBUG]REQUETE JOUEE => [DEBUG]

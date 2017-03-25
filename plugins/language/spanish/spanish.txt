@@ -892,8 +892,8 @@
 1001 Red fields are in errors!
 1002 Estimated time for deploy
 1003 Redistribution servers packages parameters
-1004 It's not possible to create the packages creation directory
-1005 The package creationis not possible so
+1004 Can't create the packages directory (/var/lib/ocsinventory-reports/download/). 
+1005 Package creation is therefore not possible.
 1006 don't have wrinting rights
 1007 The directory
 1008 Use on this redistribution package
@@ -1130,7 +1130,7 @@
 1239 MHz
 1240 MB
 1241 Number of SNMP devices 
-1242 Y-m-d
+1242 d/m/Y
 1243 Only ocsagent.exe, OCS-NG-Windows-Agent-Setup.exe and ocspackage.exe files can be post
 1244 This file can't be empty
 1245 Manage your OCS-NG clients
@@ -1175,7 +1175,7 @@
 1293 Teledeploy force
 1294 Installation time
 1295 Installation date
-1296 Trade offer
+1296 OCS Professional
 1297 SNMP device identification
 1298 QRCode administration
 1299 QRCode

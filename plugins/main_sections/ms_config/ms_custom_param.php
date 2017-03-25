@@ -25,7 +25,7 @@ require_once('require/function_config_generale.php');
 require_once('require/function_search.php');
 
 $form_name = "param_affect";
-echo open_form($form_name);
+echo open_form($form_name, '', '', 'form-horizontal');
 $list_id = multi_lot($form_name, $l->g(601));
 
 $def_onglets['SERV'] = $l->g(499); //Serveur
@@ -64,7 +64,9 @@ if ($protectedPost['Valid'] == $l->g(103)) {
             }
         }
         $MAJ = $l->g(711);
+        echo "<div class='col col-md-12'>";
         msg_success($MAJ . $add_lbl);
+        echo "</div>";
         if (isset($protectedGet['origine']) && $protectedGet['origine'] == 'machine') {
             $form_to_reload = 'config_mach';
         } elseif (isset($protectedGet['origine']) && $protectedGet['origine'] == 'group') {

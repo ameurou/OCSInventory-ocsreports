@@ -23,11 +23,13 @@
 require_once('require/function_search.php');
 require_once('require/function_groups.php');
 $form_name = "groups_affect";
-echo open_form($form_name);
+echo open_form($form_name, '', '', 'form-horizontal');
 $list_id = multi_lot($form_name, $l->g(601));
 
 /* * *******************************************TRAITEMENT DES DONNEES**************************************** */
 if (isset($protectedPost['VALID_GROUP'])) {
+    
+    echo "<div class='col col-md-12'>";
     //gestion groupe de serveurs
     if ($protectedPost['onglet'] == mb_strtoupper($l->g(651))) {
         require_once('require/function_server.php');
@@ -106,6 +108,7 @@ if (isset($protectedPost['VALID_GROUP'])) {
     if (is_defined($msg_error)) {
         msg_error($msg_error);
     }
+    echo "</div>";
 }
 /* * *******************************************CALCUL DES CHAMPS A AFFICHER************************************ */
 if ($list_id) {
@@ -181,14 +184,19 @@ $select = show_modif($optionList, 'NEW_RAZ', 2, $form_name);
 
 /* * ****************************************show RESULT*********************************************** */
 //show onglet
-onglet($def_onglets, $form_name, 'onglet', 7);
+echo "<div class='col col-md-8 col-md-offset-1'>";
+if(is_defined($protectedPost['CHOISE']) && $protectedPost['CHOISE'] != 'NONE'){
+    echo "<p>";
+    onglet($def_onglets, $form_name, 'onglet', 7);   
+    echo "</p>";
+}
 
 //create a "valid" button
 $valid = "<tr><td align=center colspan=10><input type=submit value='" . $l->g(13) . "' name='VALID_GROUP' class='btn'></td></tr>";
 //open table
 echo "<table cellspacing='5' width='80%' BORDER='0' ALIGN = 'Center' CELLPADDING='0' BGCOLOR='#C7D9F5' BORDERCOLOR='#9894B5'><tr><td>";
 echo "<tr><td align =center colspan=10>";
-if (is_defined($protectedPost['CHOISE'])) {
+if (is_defined($protectedPost['CHOISE']) && $protectedPost['CHOISE'] != 'NONE') {
     echo $select;
     echo "</td></tr>";
     //if user want give up or go out of the group
@@ -217,5 +225,8 @@ if (is_defined($protectedPost['CHOISE'])) {
     }
 }
 echo "</td></tr></table>";
+
+
+echo "</div>";
 echo close_form();
 ?>

@@ -20,25 +20,19 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
+
+// Check for mbstring before loading session and conf data
+if (!extension_loaded('mbstring')) {
+    die("Please install php mbstring extension");
+}
+
 require("require/fichierConf.class.php");
 
 // Before session_start to allow objects to be unserialized from session
 require_once('require/menu/include.php');
 require_once('require/config/include.php');
 
-
 @session_start();
-// Magic Quotes :
-// This feature has been deprecated as of PHP 5.3 and deleted as of PHP 5.4.
-if (get_magic_quotes_gpc()) {
-
-    function magicQuotes_awStripslashes(&$value, $key) {
-        $value = stripslashes($value);
-    }
-
-    $gpc = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
-    array_walk_recursive($gpc, 'magicQuotes_awStripslashes');
-}
 
 $debut = microtime(true);
 

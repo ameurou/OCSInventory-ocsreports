@@ -24,10 +24,14 @@ require_once('require/function_search.php');
 require_once('require/function_admininfo.php');
 $form_name = "lock_affect";
 
-echo open_form($form_name);
-echo "<div align=center>";
+echo open_form($form_name, '', '', 'form-horizontal');
+echo "<div class='row'>";
+echo "<div class='col-md-12'>";
+
 $list_id = multi_lot($form_name, $l->g(601));
 if (is_defined($list_id)) {
+    
+    echo "<div class='col col-md-12'>";
     //cas of TAG INFO
     if (is_defined($protectedPost['Valid_modif'])) {
         $info_account_id = admininfo_computer();
@@ -37,7 +41,7 @@ if (is_defined($list_id)) {
             if (substr($field, 0, 5) == "check") {
                 $temp = substr($field, 5);
                 if (array_key_exists($temp, $info_account_id)) {
-                    //cas of checkbox
+                    //cas of checkboxtag_seach
                     foreach ($protectedPost as $field2 => $value2) {
                         $casofcheck = explode('_', $field2);
                         if ($casofcheck[0] . '_' . $casofcheck[1] == $temp) {
@@ -87,6 +91,7 @@ if (is_defined($list_id)) {
         }
         msg_info($msg);
     }
+    echo "</div>";
 
     //tab definition
     if ($_SESSION['OCS']['profile']->getConfigValue('CHANGE_ACCOUNTINFO') == "YES") {
@@ -104,8 +109,10 @@ if (is_defined($list_id)) {
         $protectedPost['onglet'] = "TAG";
     }
     //show onglet
+    echo "<p>";
     onglet($def_onglets, $form_name, "onglet", 7);
-
+    echo "</p>";
+    
     if (is_defined($protectedPost['CHOISE'])) {
         if (!isset($protectedPost['onglet']) || $protectedPost['onglet'] == "TAG") {
             require_once('require/function_admininfo.php');
@@ -113,6 +120,8 @@ if (is_defined($list_id)) {
             $tab_typ_champ = array();
             $i = 0;
             $dont_show_type = array(8, 3);
+            echo "</div>";
+            echo "<div class='col-md-10 col-md-offset-1'>";
             foreach ($field_of_accountinfo['LIST_FIELDS'] as $id => $lbl) {
                 if (!in_array($field_of_accountinfo['LIST_TYPE'][$id], $dont_show_type)) {
                     if ($field_of_accountinfo['LIST_NAME'][$id] == "TAG") {
@@ -145,11 +154,10 @@ if (is_defined($list_id)) {
                     $i++;
                 }
             }
-            tab_modif_values($tab_name, $tab_typ_champ, array('TAG_MODIF' => $protectedPost['MODIF'], 'FIELD_FORMAT' => $type_field[$protectedPost['MODIF']]), array(
+            modif_values($tab_name, $tab_typ_champ, array('TAG_MODIF' => $protectedPost['MODIF'], 'FIELD_FORMAT' => $type_field[$protectedPost['MODIF']]), array(
                 'title' => $l->g(895)
             ));
         } elseif ($protectedPost['onglet'] == "SUP_PACK") {
-            echo "<div class='mvt_bordure'>";
             $queryDetails = "select d_a.fileid,d_a.name
 									from download_available d_a, download_enable d_e
 									where d_e.FILEID=d_a.FILEID group by d_a.NAME  order by 1 desc";
@@ -158,7 +166,11 @@ if (is_defined($list_id)) {
                 $List[$val["fileid"]] = $val["name"];
             }
             $select = show_modif($List, 'pack_list', 2, $form_name);
-            echo $l->g(970) . ": " . $select;
+            echo "</div>";
+            echo "<div class='col-md-10 col-md-offset-1'>";
+            echo $select;
+            echo "<div class='col-md-12'>";
+           
             if ($protectedPost['pack_list'] != "") {
                 $sql = "select count(*) c, tvalue from download_enable d_e,devices d
 							where d.name='DOWNLOAD' and d.IVALUE=d_e.ID and d_e.fileid='%s'
@@ -177,14 +189,12 @@ if (is_defined($list_id)) {
                 }
                 echo "<br><input type='submit' name='RAZ' value='" . $l->g(1025) . "' class='btn'>";
             }
-
-            echo "</div>";
         } elseif ($protectedPost['onglet'] == "WOL") {
-            echo "<div class='mvt_bordure'>";
             echo "<br><input type='submit' name='WOL' value='" . $l->g(13) . "' class='btn'>";
             echo "</div>";
         }
     }
+    echo "</div>";
 }
 echo close_form();
 ?>

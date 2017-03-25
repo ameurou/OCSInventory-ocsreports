@@ -42,7 +42,8 @@ define('VARLOG_DIR', "/var/lib/ocsinventory-reports");
 /**
  * Database configuration infos
  */
-define('CONF_MYSQL', ETC_DIR . '/dbconfig.inc.php');
+define('CONF_MYSQL_DIR', ETC_DIR);
+define('CONF_MYSQL', CONF_MYSQL_DIR . '/dbconfig.inc.php');
 //====================================================================================
 // Librairies / Backend / Mac address file
 //====================================================================================
@@ -72,11 +73,11 @@ define('PASSWORD_COMPAT', __DIR__ . '/libraries/password_compat/password.php');
 /**
  * OCS' MySQL database version
  */
-define('GUI_VER', '7010');
+define('GUI_VER', '7011');
 /**
  * GUI Version
  */
-define('GUI_VER_SHOW', '2.2.2');
+define('GUI_VER_SHOW', '2.3.1');
 /**
  * Default GUI language
  */
@@ -91,6 +92,10 @@ define('UPDATE_JSON_URI', 'http://check-version.ocsinventory-ng.org');
  * Configuration directory
  */
 define('CONFIG_DIR', __DIR__ . '/config/');
+/**
+ * Profiles directory
+ */
+define('PROFILES_DIR', CONFIG_DIR.'profiles/');
 /**
  * Computer detail configuration directory
  */

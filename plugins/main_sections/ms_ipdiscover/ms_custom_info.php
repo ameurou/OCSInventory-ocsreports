@@ -26,6 +26,9 @@ if (AJAX) {
 
     ob_start();
 }
+
+require_once('require/function_ipdiscover.php');
+
 $form_name = 'info_ipdiscover';
 $tab_options = $protectedPost;
 
@@ -73,11 +76,17 @@ if (isset($protectedPost['Valid_modif'])) {
 					USER = '%s' where MACADDR='%s'";
             $arg = array($protectedPost['COMMENT'], $protectedPost['TYPE'], $protectedPost['mac'], $user, $protectedPost['MODIF_ID']);
         } else {
-            $sql = "insert into network_devices (DESCRIPTION,TYPE,MACADDR,USER)
-			  VALUES('%s','%s','%s','%s')";
-            $arg = array($protectedPost['COMMENT'], $protectedPost['TYPE'], $protectedPost['mac'], $user);
+            if(!check_if_inv_mac_already_exist($protectedPost['mac'])){
+                $sql = "insert into network_devices (DESCRIPTION,TYPE,MACADDR,USER)
+                    VALUES('%s','%s','%s','%s')";
+                $arg = array($protectedPost['COMMENT'], $protectedPost['TYPE'], $protectedPost['mac'], $user);
+            }
+
         }
-        mysql2_query_secure($sql, $_SESSION['OCS']["writeServer"], $arg);
+        if(isset($sql)){
+            mysql2_query_secure($sql, $_SESSION['OCS']["writeServer"], $arg); 
+        }
+
         //suppression du cache pour prendre en compte la modif
         unset($_SESSION['OCS']['DATA_CACHE']['IPDISCOVER_' . $protectedGet['prov']]);
     } else {
@@ -115,7 +124,7 @@ if (is_defined($protectedPost['MODIF'])) {
 
     $tab_typ_champ[0]['DEFAULT_VALUE'] = $protectedPost['MODIF'];
     $tab_typ_champ[0]['INPUT_NAME'] = "MAC";
-    $tab_typ_champ[0]['INPUT_TYPE'] = 3;
+    $tab_typ_champ[0]['INPUT_TYPE'] = 13;
     $tab_name[0] = $l->g(95) . ": ";
 
     $tab_typ_champ[1]['DEFAULT_VALUE'] = $protectedPost['COMMENT'];
@@ -174,7 +183,7 @@ if (is_defined($protectedPost['MODIF'])) {
             $tab_options['ARG_SQL'] = array($protectedGet['value']);
             $list_fields = array($l->g(66) => 'TYPE', $l->g(53) => 'DESCRIPTION',
                 $l->g(34) => 'IP',
-                'MAC' => 'MAC',
+                $l->g(95) => 'MAC',
                 $l->g(208) => 'MASK',
                 $l->g(316) => 'NETID',
                 $l->g(318) => 'NAME',
@@ -185,7 +194,7 @@ if (is_defined($protectedPost['MODIF'])) {
             $list_fields['SUP'] = 'MAC';
             $list_fields['MODIF'] = 'ID';
             $default_fields = array($l->g(34) => $l->g(34), $l->g(66) => $l->g(66), $l->g(53) => $l->g(53),
-                'MAC' => 'MAC', $l->g(232) => $l->g(232), $l->g(369) => $l->g(369), 'SUP' => 'SUP', 'MODIF' => 'MODIF');
+                $l->g(95)  => 'MAC', $l->g(232) => $l->g(232), $l->g(369) => $l->g(369), 'SUP' => 'SUP', 'MODIF' => 'MODIF');
         } elseif ($protectedGet['prov'] == "inv" || $protectedGet['prov'] == "ipdiscover") {
             //BEGIN SHOW ACCOUNTINFO
             require_once('require/function_admininfo.php');
@@ -244,7 +253,7 @@ if (is_defined($protectedPost['MODIF'])) {
         $tab_options['table_name'] = $table_name;
         $form_name = $table_name;
         $tab_options['form_name'] = $form_name;
-        echo open_form($form_name);
+        echo open_form($form_name, '', '', 'form-horizontal');
         $result_exist = ajaxtab_entete_fixe($list_fields, $default_fields, $tab_options, $list_col_cant_del);
         $fipdisc = "ipdiscover-util.pl";
         $values = look_config_default_values(array('IPDISCOVER_IPD_DIR'), '', array('IPDISCOVER_IPD_DIR' => array('TVALUE' => VARLIB_DIR)));
@@ -265,7 +274,6 @@ if (is_defined($protectedPost['MODIF'])) {
         echo close_form();
     }
 }
-
 if (AJAX) {
     ob_end_clean();
     tab_req($list_fields, $default_fields, $list_col_cant_del, $sql, $tab_options);

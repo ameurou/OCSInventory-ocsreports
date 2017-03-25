@@ -338,8 +338,7 @@ function html_header($noJavascript = false) {
         <script src="libraries/jquery-fileupload/jquery.fileupload.min.js" type="text/javascript"></script>
         <script src="libraries/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="js/bootstrap-custom.js" type="text/javascript"></script>
-        <script src="libraries/raphael/raphael.min.js" type="text/javascript"></script>
-        <script src="libraries/elycharts/elycharts.min.js" type="text/javascript"></script>
+        <script src="libraries/charts.js/Chart.min.js" type="text/javascript"></script>
         <!-- js for Datatables -->
         <script src="libraries/datatable/media/js/jquery.dataTables.min.js" type="text/javascript"></script>
         <script src="libraries/datatable/media/js/dataTables.bootstrap.js" type="text/javascript"></script>
@@ -387,13 +386,15 @@ function close_form() {
  */
 
 function get_update_json() {
-    $stream = stream_context_create(array('http' =>
-        array(
-            'timeout' => 1, // Timeout after 1 seconds
-        )
-    ));
 
-    $content = @file_get_contents(UPDATE_JSON_URI, false, $stream);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, UPDATE_JSON_URI);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $content = curl_exec($ch);
+    curl_close($ch);
+
     if (!$content) {
         return false;
     }
@@ -415,7 +416,7 @@ function formGroup($inputType, $inputName, $name, $size, $maxlength, $inputValue
                 echo "<div class='input-group'>";
 		echo "<select name='".$inputName."' id='".$inputName."' class='form-control ".$class."' ".$attrBalise.">";
 		foreach ($optionsSelect as $option => $value){
-			echo "<option value='".$option."' ".($inputValue[$inputName] == $option ? 'selected' : '').">".($arrayDisplayValues[$option] ? $arrayDisplayValues[$option] : $option)."</option>";
+			echo "<option value='".$option."' ".($inputValue == $option ? 'selected' : '').">".($arrayDisplayValues[$option] ? $arrayDisplayValues[$option] : $option)."</option>";
 		}
 		echo "</select>";
                 if($groupAddon != ""){
@@ -455,11 +456,11 @@ function modif_values($field_labels, $fields, $hidden_fields, $options = array()
 		'top_action' => null,
 		'show_frame' => true
 	), $options);
-
+        
 	if ($options['form_name'] != 'NO_FORM') {
 		echo open_form($options['form_name'], '', '', 'form-horizontal');
 	}
-
+        
 	if (is_array($field_labels)) {
 		foreach ($field_labels as $key => $label) {
 
@@ -520,7 +521,11 @@ function modif_values($field_labels, $fields, $hidden_fields, $options = array()
                                 }else if($inputType == 'select'){
                                     echo "<select name='".$field['INPUT_NAME']."' class='form-control' ".$field['CONFIG']['JAVASCRIPT'].">";
                                     foreach ($field['DEFAULT_VALUE'] as $key => $value){
-                                            echo "<option value='".$key."'>".$value."</option>";
+                                            if($key == $field['CONFIG']['SELECTED_VALUE']){
+                                                echo "<option value='".$key."' selected>".$value."</option>";
+                                            }else{
+                                                echo "<option value='".$key."'>".$value."</option>";
+                                            }
                                     }
                                     echo "</select>";
                                 } else if($inputType == 'checkbox'){
@@ -545,7 +550,7 @@ function modif_values($field_labels, $fields, $hidden_fields, $options = array()
 
 		}
 	}
-
+        
 	if ($options['show_button'] === 'BUTTON') {
 		echo '<div class="form-buttons">';
 		echo '<input type="submit" name="Valid_'.$options['button_name'].'" value="'.$l->g(13).'"/>';
@@ -567,6 +572,7 @@ function modif_values($field_labels, $fields, $hidden_fields, $options = array()
 		echo close_form();
 	}
 }
+
 /**
  * Test if a var is defined && contains something (not only blank char)
  * @param type $var var to test
@@ -591,6 +597,123 @@ function is_defined(&$var) {
         }
     }
     return $result;
+}
+
+/**
+ * Check for all php dependencies in a function
+ * Called on install and update
+ */
+function check_requirements(){
+    
+    global $l;
+    
+    //messages lbl
+    $msg_lbl = array();
+    $msg_lbl['info'] = array();
+    $msg_lbl['warning'] = array();
+    $msg_lbl['error'] = array();
+    //msg=you have to update database
+    if (isset($fromAuto) && $fromAuto == true) {
+        $msg_lbl['info'][] = $l->g(2031) . " " . $valUpd["tvalue"] . " " . $l->g(2032) . " (" . GUI_VER . "). " . $l->g(2033);
+    }
+    //msg=your config file doesn't exist
+    if (isset($fromdbconfig_out) && $fromdbconfig_out == true) {
+        $msg_lbl['info'][] = $l->g(2034);
+    }
+    //max to upload
+    $pms = "post_max_size";
+    $umf = "upload_max_filesize";
+    $valTpms = ini_get($pms);
+    $valTumf = ini_get($umf);
+    $valBpms = return_bytes($valTpms);
+    $valBumf = return_bytes($valTumf);
+    if ($valBumf > $valBpms) {
+        $MaxAvail = trim(mb_strtoupper($valTpms), "M");
+    } else {
+        $MaxAvail = trim(mb_strtoupper($valTumf), "M");
+    }
+    $msg_lbl['info'][] = $l->g(2040) . " " . $MaxAvail . $l->g(1240) . "<br>" . $l->g(2041) . "<br><br><font color=red>" . $l->g(2102) . "</font>";
+    //msg=no php-session function
+    if (!function_exists('session_start')) {
+        $msg_lbl['error'][] = $l->g(2035);
+    }
+    //msg= no mysqli_connect function
+    if (!function_exists('mysqli_connect')) {
+        $msg_lbl['error'][] = $l->g(2037);
+    }
+    if ((file_exists(CONF_MYSQL) && !is_writable(CONF_MYSQL)) || (!file_exists(CONF_MYSQL) && !is_writable(CONF_MYSQL_DIR))) {
+        $msg_lbl['error'][] = "<br><center><font color=red><b>" . $l->g(2052) . "</b></font></center>";
+    }
+    //msg for phpversion
+    if (version_compare(phpversion(), '5.4', '<')) {
+        $msg_lbl['warning'][] = $l->g(2113) . " " . phpversion() . " ) ";
+    }
+    if (!class_exists('SoapClient')) {
+        $msg_lbl['warning'][] = $l->g(6006);
+    }
+    if (!function_exists('xml_parser_create')) {
+        $msg_lbl['warning'][] = $l->g(2036);
+    }
+    if (!function_exists('imagefontwidth')) {
+        $msg_lbl['warning'][] = $l->g(2038);
+    }
+    if (!function_exists('openssl_open')) {
+        $msg_lbl['warning'][] = $l->g(2039);
+    }
+    if (!function_exists('curl_version')) {
+        $msg_lbl['warning'][] = $l->g(2125);
+    }
+    // Check if var lib directory is writable
+    if (is_writable(VARLIB_DIR)) {
+        if (!file_exists(VARLIB_DIR . "/download")) {
+            mkdir(VARLIB_DIR . "/download");
+        }
+        if (!file_exists(VARLIB_DIR . "/logs")) {
+            mkdir(VARLIB_DIR . "/logs");
+        }
+        if (!file_exists(VARLIB_DIR . "/scripts")) {
+            mkdir(VARLIB_DIR . "/scripts");
+        }
+    } else {
+        $msg_lbl['warning'][] = "Var lib dir should be writable : " . VARLIB_DIR;
+    }
+    // Check if ocsreports is writable
+    if (!is_writable(CONF_MYSQL_DIR)) {
+        $msg_lbl['warning'][] = "Ocs reports' dir should be writable : " . CONF_MYSQL_DIR;
+    }
+    //show messages
+    foreach ($msg_lbl as $k => $v) {
+        $show = implode("<br>", $v);
+        if ($show != '') {
+            call_user_func_array("msg_" . $k, array($show));
+            //stop if error
+            if ($k == "error") {
+                die();
+            }
+        }
+    }
+    
+}
+
+/**
+ * From a byte value return an int
+ * 
+ * @param type $val
+ * @return int
+ */
+function return_bytes($val) {
+    $val = trim($val);
+    $last = strtolower($val{strlen($val) - 1});
+    switch ($last) {
+        case 'g':
+            $val *= 1024;
+        case 'm':
+            $val *= 1024;
+        case 'k':
+            $val *= 1024;
+    }
+
+    return $val;
 }
 
 ?>

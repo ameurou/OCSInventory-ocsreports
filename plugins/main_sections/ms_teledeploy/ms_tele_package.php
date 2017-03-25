@@ -28,6 +28,7 @@ foreach ($_POST as $key => $value) {
     $temp_post[$key] = $value;
 }
 $protectedPost = $temp_post;
+
 if (isset($protectedPost["VALID_END"])) {
     //configure description of this package
     $description_details = $protectedPost['DESCRIPTION'];
@@ -43,7 +44,7 @@ if (isset($protectedPost["VALID_END"])) {
         'nbfrags' => $protectedPost["nbfrags"],
         'name' => $protectedPost['NAME'],
         'os' => $protectedPost['OS'],
-        'description' => $description_details,
+        'description' => $protectedPost['comment'],
         'size' => $protectedPost['SIZE'],
         'id_wk' => $protectedPost['LIST_DDE_CREAT']);
 
@@ -251,7 +252,8 @@ if (isset($protectedPost['valid'])) {
             input_pack_taille("nbfrags_redistrib", "tailleFrag_redistrib", round($size), '5', '1', $l->g(464), '<span class="glyphicon glyphicon-th-large"></span>');
             $java_script = "verif_redistributor();";
         }
-
+        
+        formGroup('hidden', 'comment', '', '', '', $protectedPost['DESCRIPTION'], '', '', '', '');
         echo "<input type='button' class='btn btn-success' name='TEST_END' id='TEST_END' OnClick='" . $java_script . "' value='" . $l->g(13) . "'>";
         echo "<input type='hidden' name='digest' value='" . $digest . "'>";
         echo "<input type='hidden' name='VALID_END' id='VALID_END' value=''>";
@@ -263,7 +265,7 @@ $default_value = array(
     'OS' => 'WINDOWS',
     'PROTOCOLE' => 'HTTP',
     'PRIORITY' => '5',
-    'ACTION' => 'STORE',
+    'ACTION' => 'EXECUTE',
     'REDISTRIB_PRIORITY' => '5'
 );
 
@@ -302,11 +304,10 @@ if (!$protectedPost) {
 
 echo "<input type='hidden' name='document_root' value='" . $protectedPost['document_root'] . "'>
 	 <input type='hidden' id='timestamp' name='timestamp' value='" . $protectedPost['timestamp'] . "'>";
-
 echo "<script language='javascript'>
 		function changeLabelAction(){
-		    var displayText = {'EXECUTE' : '" . $l->g(444) . "', 'STORE' : '" . $l->g(445) . "', 'LAUNCH' : '" . $l->g(446) . "'};
-			var select = $(\"#ACTION\");
+            var displayText = {'EXECUTE' : '" . $l->g(444) . "', 'STORE' : '" . $l->g(445) . "', 'LAUNCH' : '" . $l->g(446) . "'};
+			var select = $(\"#ACTION :selected \");
 			var label = $(\"label[for='ACTION_INPUT']\");
 
 			switch(select.val()){
@@ -445,8 +446,6 @@ $config_input = array(
     'MAXLENGTH' => 255,
     'SIZE' => 50
 );
-$list_os = array("WINDOWS", "LINUX", "MAC");
-$list_proto = array("HTTP");
 
 $arrayName = [
 	"os" => $l->g(25),
@@ -478,7 +477,9 @@ $list_os = [
 	"LINUX" => "UNIX/LINUX",
 	"MAC" => "MACOS"
 ];
-$list_proto = ["HTTP"];
+$list_proto = [
+    "HTTP" => "HTTP"
+];
 
 $i = 0;
 while ($i < 10) {
@@ -500,7 +501,6 @@ $arrayDisplayValue = [
 		"1" => $l->g(455)
 	],
 ];
-$list_action = array("EXECUTE", "STORE", "LAUNCH");
 
 $arrayDisplayValue = array(
     "ACTION" => array(
@@ -522,11 +522,11 @@ $arrayDisplayValue = array(
 formGroup('text', 'NAME', $arrayName['name'], $config_input['SIZE'], $config_input['MAXLENGTH'], $protectedPost['NAME']);
 
 formGroup('text', 'DESCRIPTION', $arrayName['description'], $config_input['MAXLENGTH'], $protectedPost['DESCRIPTION']);
-formGroup('select', 'OS', $arrayName['os'], '', $config_input['MAXLENGTH'], $protectedPost, '', $list_os, $list_os, "onchange='active(\"OS_div\", this.value==\"WINDOWS\");' ");
-formGroup('select', 'PROTOCOLE', $arrayName['proto'], '', $config_input['MAXLENGTH'], $protectedPost, '', $list_proto, $list_proto);
-formGroup('select', 'PRIORITY', $arrayName['prio'], '', $config_input['MAXLENGTH'], $protectedPost, '', $list_prio, $list_prio);
+formGroup('select', 'OS', $arrayName['os'], '', $config_input['MAXLENGTH'], $protectedPost['OS'], '', $list_os, $list_os, "onchange='active(\"OS_div\", this.value==\"WINDOWS\");' ");
+formGroup('select', 'PROTOCOLE', $arrayName['proto'], '', $config_input['MAXLENGTH'], $protectedPost['PROTOCOLE'], '', $list_proto, $list_proto);
+formGroup('select', 'PRIORITY', $arrayName['prio'], '', $config_input['MAXLENGTH'], $protectedPost['PRIORITY'], '', $list_prio, $list_prio);
 formGroup('file', 'teledeploy_file', $arrayName['file'], '', $config_input['MAXLENGTH'], $protectedPost['teledeploy_file'], '', '', "accept='archive/zip'");
-formGroup('select', 'ACTION', $arrayName['action'], '', $config_input['MAXLENGTH'], $protectedPost, '', $list_action, $list_action, "onchange='changeLabelAction()' ");
+formGroup('select', 'ACTION', $arrayName['action'], '', $config_input['MAXLENGTH'], $protectedPost['ACTION'], '', $list_action, $list_action, "onchange='changeLabelAction()' ");
 formGroup('text', 'ACTION_INPUT', $l->g(444), '' ,$config_input['MAXLENGTH'], $protectedPost['ACTION_INPUT']);
 
 echo "<br />";
@@ -563,8 +563,8 @@ formGroup('select', 'REDISTRIB_USE', $arrayName['redistribution'], $config_input
 ?>
 <div id="REDISTRIB_USE_div" style="display: none;">
     <?php
-    formGroup('text', 'DOWNLOAD_SERVER_DOCROOT', $arrayName['path_remote_server'], $config_input['MAXLENGTH'], $config_input['MAXLENGTH'], $protectedPost['DOWNLOAD_SERVER_DOCROOT'], '', $list_prio);
-    formGroup('select', 'REDISTRIB_PRIORITY', $arrayName['prio'], $config_input['MAXLENGTH'], $config_input['MAXLENGTH'], $protectedPost, '', $list_prio, $list_prio);
+    formGroup('text', 'DOWNLOAD_SERVER_DOCROOT', $arrayName['path_remote_server'], $config_input['MAXLENGTH'], $config_input['MAXLENGTH'], $default['DOWNLOAD_SERVER_DOCROOT'], '', $list_prio);
+    formGroup('select', 'REDISTRIB_PRIORITY', $arrayName['prio'], $config_input['MAXLENGTH'], $config_input['MAXLENGTH'], $protectedPost['REDISTRIB_PRIORITY'], '', $list_prio, $list_prio);
     echo "</div>";
 
     echo "<br />";
@@ -577,7 +577,7 @@ formGroup('select', 'REDISTRIB_USE', $arrayName['redistribution'], $config_input
     <div id="NOTIFY_USER_div" style="display: none;">
         <?php
         formGroup('text', 'NOTIFY_TEXT', $arrayName['notify_text'], '', '', $protectedPost['NOTIFY_TEXT']);
-        formGroup('text', 'NOTIFY_COUNTDOWN', $arrayName['notify_countdown'], 4, 4, $protectedPost['NOTIFY_TEXT'], '', '', '', ' onkeypress="return scanTouche(event,/[0-9]/);" onkeydown="convertToUpper(this);" onkeyup="convertToUpper(this);" onblur="convertToUpper(this);" onclick="convertToUpper(this);"', $l->g(511));
+        formGroup('text', 'NOTIFY_COUNTDOWN', $arrayName['notify_countdown'], 4, 4, $protectedPost['NOTIFY_COUNTDOWN'], '', '', '', ' onkeypress="return scanTouche(event,/[0-9]/);" onkeydown="convertToUpper(this);" onkeyup="convertToUpper(this);" onblur="convertToUpper(this);" onclick="convertToUpper(this);"', $l->g(511));
         formGroup('select', 'NOTIFY_CAN_ABORT', $arrayName['user_can_abort'], '', '', $protectedPost['NOTIFY_CAN_ABORT'], '', array(0, 1), array(0 => 'No', 1 => 'Yes'));
         formGroup('select', 'NOTIFY_CAN_DELAY', $arrayName['user_can_delay'], '', '', $protectedPost['NOTIFY_CAN_ABORT'], '', array(0, 1), array(0 => 'No', 1 => 'Yes'));
         ?>

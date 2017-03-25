@@ -64,7 +64,6 @@ function form_add_subnet($title = '', $default_value, $form) {
     }
 
     $value_field = array($default_value['RSX_NAME'], $default_value['ID_NAME'], $default_value['ADD_IP'], $default_value['ADD_SX_RSX']);
-    var_dump($default_value);
 
     $tab_typ_champ = show_field($name_field, $type_field, $value_field);
     foreach ($tab_typ_champ as $id => $values) {
@@ -163,7 +162,7 @@ function loadMac() {
         $file = fopen(MAC_FILE, "r");
         while (!feof($file)) {
             $line = fgets($file, 4096);
-            if (preg_match("/^\s+((?:[a-fA-F0-9]{2}-){2}[a-fA-F0-9]{2})\s+\(.+\)\s+(.+)\s*$/", $line, $result)) {
+            if (preg_match("/((?:[a-fA-F0-9]{2}-){2}[a-fA-F0-9]{2})\s+\(.+\)\s+(.+)/", $line, $result)) {
                 $_SESSION['OCS']["mac"][mb_strtoupper(str_replace("-", ":", $result[1]))] = $result[2];
             }
         }
@@ -197,7 +196,7 @@ function form_add_community($title = '', $default_value, $form) {
     }
     $tab_hidden['ADD_COMM'] = $protectedPost['ADD_COMM'];
     $tab_hidden['ID'] = $protectedPost['ID'];
-    tab_modif_values($tab_name, $tab_typ_champ, $tab_hidden, array(
+    modif_values($tab_name, $tab_typ_champ, $tab_hidden, array(
         'title' => $title,
         'show_frame' => false
     ));
@@ -289,6 +288,22 @@ function count_noinv_network_devices($dpt_choise = '') {
     } else {
         return $_SESSION['OCS']['COUNT_CONSOLE']['OCS_REPORT_NB_IPDISCOVER'];
     }
+}
+
+// Check if mac address already exist in the inventoried devices
+function check_if_inv_mac_already_exist($mac_address){
+    
+    $arg_count = array($mac_address);
+    $sql_query = "SELECT * FROM `network_devices` WHERE MACADDR = '%s' ";
+    
+    $res_count = mysql2_query_secure($sql_query, $_SESSION['OCS']["readServer"], $arg_count);
+    
+    if (mysqli_num_rows($res_count) > 0){
+        return true;
+    }else{
+        return false;
+    }
+    
 }
 
 ?>

@@ -22,8 +22,9 @@
  */
 
 function show_computer_menu($computer_id) {
+    global $protectedGet;
     $menu_serializer = new XMLMenuSerializer();
-    $menu = $menu_serializer->unserialize(file_get_contents('config/computer/menu.xml'));
+    $menu = $menu_serializer->unserialize(file_get_contents(CD_CONFIG_DIR . 'menu.xml'));
 
     $menu_renderer = new ComputerMenuRenderer($computer_id, $_SESSION['OCS']['url_service']);
 
@@ -36,13 +37,10 @@ function show_computer_menu($computer_id) {
 
         $url = $menu_elem->getUrl();
         $label = $menu_renderer->getLabel($menu_elem);
-
-
-
         echo "<li ";
-        //if ($activeMenu == $url) {
-        //    echo "class='active'";
-        //}
+        if ($protectedGet['cat'] == explode('=',$url)[1]) {
+            echo "class='active'";
+        }
         echo " ><a href=' ".$menu_renderer->getUrl($menu_elem) ."'>" . $label . "</a></li>";
     }
 
@@ -165,10 +163,10 @@ function show_computer_summary($computer) {
 }
 
 function show_summary($data, $labels, $cat_labels, $links = array()) {
+
     $nb_col = 2;
     $i = 0;
 
-    echo '<div class="summary">';
     foreach ($labels as $cat_key => $cat) {
         if ($i % $nb_col == 0) {
             echo '<div class="row">';
@@ -201,7 +199,6 @@ function show_summary($data, $labels, $cat_labels, $links = array()) {
         }
     }
 
-    echo '</div>';
 }
 
 ?>

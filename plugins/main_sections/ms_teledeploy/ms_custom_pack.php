@@ -41,7 +41,7 @@ if ($protectedPost['MODIF'] != '' && isset($protectedPost['DWL_OPT']) && $protec
     $tab_hidden['SELECT'] = $protectedPost['MODIF'];
     $tab_hidden['onglet'] = $protectedPost['onglet'];
     $tab_hidden['rule_choise'] = $protectedPost['rule_choise'];
-    $action = array('REBOOT' => $l->g(1311), 'SHUTDOWN' => $l->g(1310));
+    $action = array('NONE' => '',  'REBOOT' => $l->g(1311), 'SHUTDOWN' => $l->g(1310));
     $min = array('00' => '00', '15' => '15', '30' => '30', '45' => '45');
     $hour = array('00' => '00',
         '01' => '01',
@@ -131,7 +131,9 @@ if ($protectedPost['MODIF'] != '' && isset($protectedPost['DWL_OPT']) && $protec
         if ($protectedPost['onglet'] == 'SERV_GROUP') {
             $nb_affect = active_serv($list_id, $protectedPost['SELECT'], $protectedPost['rule_choise']);
         }
+        echo "<div class='col col-md-12'>";
         msg_success($nb_affect . " " . $l->g(604));
+        echo "</div>";
         if (isset($form_to_reload)) {
             //add this $var => not delete this package on computer detail
             $_SESSION['OCS']["justAdded"] = true;
@@ -178,7 +180,11 @@ if ($protectedPost['MODIF'] != '' && isset($protectedPost['DWL_OPT']) && $protec
 
         if ($protectedPost['onglet'] == 'MACH') {
             $selectValues = array('' => '', 'NO' => $l->g(454), 'YES' => $l->g(455));
-            formGroup('select', 'DWL_OPT', $l->g(1292), '', '', $protectedPost['DWL_OPT'], '', $selectValues, $selectValues, 'onclick=document.'.$form_name.'.submit();');
+            formGroup('select', 'DWL_OPT', $l->g(1292), '', '', $protectedPost['DWL_OPT'], '', $selectValues, $selectValues);
+            ?>
+
+            <p><button class="btn btn-success" onclick="document.<?php echo $form_name; ?>.submit()"><?php echo $l->g(910); ?></button></p>
+            <?php
         }
 
         if (($protectedPost['onglet'] == 'MACH' && $protectedPost['DWL_OPT'] != '') || ($protectedPost['onglet'] == 'SERV_GROUP' && $protectedPost['rule_choise'] != '')) {
@@ -248,6 +254,8 @@ if ($protectedPost['MODIF'] != '' && isset($protectedPost['DWL_OPT']) && $protec
 }
 echo "</div>";
 echo close_form();
+
+
 
 if (AJAX) {
     ob_end_clean();

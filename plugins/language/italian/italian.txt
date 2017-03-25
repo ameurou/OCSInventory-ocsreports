@@ -1126,7 +1126,7 @@
 1239 MHz
 1240 MB
 1241 Numero di periferiche SNMP
-1242 Y-m-d
+1242 d/m/Y
 1243 I soli file ammessi sono ocsagent.exe, OCS-NG-Windows-Agent-Setup.exe ed ocspackage.exe
 1244 Questo file non può essere vuoto
 1245 Gestione client OCS-NG
@@ -1172,7 +1172,7 @@
 1293 Forza Teledeploy
 1294 Ora dell'installazione
 1295 Data dell'installazione
-1296 Offerta commerciale
+1296 OCS Professional
 1297 Identificativo periferica
 1298 Amministrazione QRCode
 1299 QRCode
@@ -1360,7 +1360,7 @@
 2068 non è stato inserito. Devi configurare la voce max_allowed_packet in MySQL con, almeno, il valore minimo di 2MB
 2070 mancante, se non effettui una nuova installazione la funzione di DEPLOY non sarà disponibile
 2071 ATTENZIONE: uno o più file erano già caricati
-2072 File di Deploy correttamente caricati
+2072 File per il Deploy correttamente caricati
 2073 Tabella 'files' troncata
 2074 Tabella 'files' vuota
 2076 Nessun file subnet.csv da importare
@@ -1399,7 +1399,7 @@
 2110 Versione richiesta
 2111 Effettua l'aggiornamento
 2112 Il file non è presente o non è leggibile
-2113 La tua versione di PHP è precedente alla 5.3.7 e non sarà compatibile con le future versioni ( versione&nbsp;:&nbsp;
+2113 La tua versione di PHP è precedente alla 5.4 e non sarà compatibile con le future versioni ( versione&nbsp;:&nbsp;
 2114 Nessun file sql trovato per la versione
 2115 L'utente fornito non sembra essere root
 2116 La directory config/profiles non è scrivibile

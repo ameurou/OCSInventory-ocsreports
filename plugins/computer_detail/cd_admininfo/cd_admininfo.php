@@ -23,6 +23,7 @@
 require_once('require/function_admininfo.php');
 $form_name = 'admin_info_computer';
 $table_name = $form_name;
+
 //search all admininfo for this computer
 $info_account_id = admininfo_computer($systemid);
 if (!is_array($info_account_id)) {
@@ -109,9 +110,9 @@ if (!is_array($info_account_id)) {
         if ($_SESSION['OCS']['profile']->getConfigValue('ACCOUNTINFO') == 'YES' && !$show_all_column) {
             $show_admin_button = "<a href=# OnClick='pag(\"ADMIN\",\"ADMIN\",\"" . $form_name . "\");'>";
             if (isset($_SESSION['OCS']['ADMIN']['ACCOUNTINFO'])) {
-                $show_admin_button .= "<img src=image/success.png></a>";
+                $show_admin_button .= "<span class='glyphicon glyphicon-ok'></span></a>";
             } else {
-                $show_admin_button .= "<img src=image/modif_tab.png></a>";
+                $show_admin_button .= "<span class='glyphicon glyphicon-cog'></span></a>";
             }
         } else {
             $show_admin_button = '';
@@ -193,6 +194,7 @@ if (!is_array($info_account_id)) {
                     }
                 }
             } elseif ($val_admin_info['TYPE'] == 6) {
+                $info_account_id[$name_accountinfo] = date($l->g(1242), strtotime($info_account_id[$name_accountinfo]));
                 array_push($value_field, $info_account_id[$name_accountinfo]);
                 if ($_SESSION['OCS']['profile']->getConfigValue('CHANGE_ACCOUNTINFO') == "YES") {
                     if ($admin_accountinfo) {
@@ -217,7 +219,6 @@ if (!is_array($info_account_id)) {
             } elseif ($val_admin_info['TYPE'] == 8) { //QRCODE
                 array_push($value_field, $info_account_id[$name_accountinfo]);
                 if ($admin_accountinfo) {
-
                     array_push($config['COMMENT_AFTER'], $up_png);
                 } else {
                     array_push($config['COMMENT_AFTER'], "");
@@ -243,11 +244,26 @@ if (!is_array($info_account_id)) {
             if ($_SESSION['OCS']['profile']->getConfigValue('CHANGE_ACCOUNTINFO') == "YES") {
                 array_push($type_field, $convert_type[$val_admin_info['TYPE']]);
             } else {
-                array_push($type_field, 3);
+                //TODO : QRCode management
+                array_push($type_field, 13);                
+
             }
 
             $nb_row++;
+            
         }
+        
+        // If is a select get default data
+        foreach($name_field as $key => $value){
+            if($config['SELECT_DEFAULT'][$key] == 'YES'){
+                $sql_selected_data = "SELECT ".$value." FROM `accountinfo` WHERE `HARDWARE_ID` = ".$protectedGet['systemid'];
+                $result = mysql2_query_secure($sql_selected_data, $_SESSION['OCS']["readServer"]);
+                while ($admininfo_default_data = mysqli_fetch_array($result)) {
+                    $config['SELECTED_VALUE'][$key] = $admininfo_default_data[$value];
+                }
+            }
+        }
+
         $tab_typ_champ = show_field($name_field, $type_field, $value_field, $config);
         if ($_SESSION['OCS']['profile']->getConfigValue('ACCOUNTINFO') == 'YES') {
             $tab_hidden = array('ADMIN' => '', 'UP' => '', 'DOWN' => '');
@@ -262,7 +278,14 @@ if (!is_array($info_account_id)) {
             $showbutton = false;
         }
         echo "<div class='row'>";
-        echo "<div class='col col-md-6 col-md-offset-2'>";
+
+        if($_SESSION['OCS']['profile']->getConfigValue('ACCOUNTINFO') == 'YES'){
+            echo "<ul class='nav nav-tabs pull-right'>";
+                echo $show_admin_button;
+            echo "</ul>";
+        }
+        
+        echo "<div class='col col-md-6 col-md-offset-3'>";
         modif_values($tab_name, $tab_typ_champ, $tab_hidden, array(
             'show_button' => $showbutton,
             'form_name' => $form_name = 'NO_FORM',
